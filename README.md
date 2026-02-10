@@ -4,7 +4,6 @@ A modern and responsive Appointment Booking Frontend Application built using **R
 
 This project simulates a real-world service booking interface where users can select a date, choose available time slots, and manage bookings.
 
----
 
 ## 🚀 Live Features
 
@@ -20,7 +19,6 @@ This project simulates a real-world service booking interface where users can se
 ✅ Premium Modern UI (Glass + Gradient + Motion)  
 ✅ Fully Responsive Design  
 
----
 
 ## 🛠 Tech Stack
 
@@ -29,7 +27,7 @@ This project simulates a real-world service booking interface where users can se
 - Framer Motion
 - LocalStorage (State Persistence)
 
----
 
-## 📂 Project Structure
+
+
 
