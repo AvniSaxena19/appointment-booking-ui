@@ -8,25 +8,20 @@ function App() {
 
   const [selectedDate, setSelectedDate] = useState("");
   const [bookings, setBookings] = useState({});
-
-  const [confirmType, setConfirmType] = useState(null);
-  const [historyOpen, setHistoryOpen] = useState(false);
-
+  const [showBookingToast, setShowBookingToast] = useState(false);
   const [showUndo, setShowUndo] = useState(false);
   const [backupBookings, setBackupBookings] = useState(null);
-
-  const [showBookingToast, setShowBookingToast] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [confirmType, setConfirmType] = useState(null);
 
   useEffect(() => {
     setBookings(getBookings());
   }, []);
 
-  // ================= BOOK SLOT =================
   const handleBooking = (time) => {
     if (!selectedDate) return;
 
     const updated = { ...bookings };
-
     if (!updated[selectedDate]) updated[selectedDate] = [];
     updated[selectedDate].push(time);
 
@@ -37,23 +32,18 @@ function App() {
     setTimeout(() => setShowBookingToast(false), 2500);
   };
 
-  // ================= CLEAR ALL =================
   const clearAllBookings = () => {
     setBackupBookings(bookings);
-
     localStorage.removeItem("appointments");
     setBookings({});
-
     setShowUndo(true);
     setTimeout(() => setShowUndo(false), 5000);
   };
 
-  // ================= CLEAR DATE =================
   const clearSelectedDateBookings = () => {
     if (!selectedDate) return;
 
     setBackupBookings(bookings);
-
     const updated = { ...bookings };
     delete updated[selectedDate];
 
@@ -64,113 +54,120 @@ function App() {
     setTimeout(() => setShowUndo(false), 5000);
   };
 
-  // ================= UNDO =================
   const undoClear = () => {
     if (!backupBookings) return;
-
     setBookings(backupBookings);
     saveBookings(backupBookings);
     setShowUndo(false);
   };
 
   return (
-    <div className="min-h-screen bg-black text-white relative overflow-hidden">
+    <div className="min-h-screen bg-black text-white">
 
-      {/* BACKGROUND GLOW */}
-      <div className="absolute w-[600px] h-[600px] bg-purple-600/30 blur-[150px] rounded-full top-[-200px] left-[-200px]" />
-      <div className="absolute w-[500px] h-[500px] bg-blue-600/30 blur-[150px] rounded-full bottom-[-200px] right-[-200px]" />
-
-      {/* BOOKING TOAST */}
+      {/* TOASTS */}
       <AnimatePresence>
         {showBookingToast && (
           <motion.div
-            initial={{ y: -100 }}
+            initial={{ y: -120 }}
             animate={{ y: 40 }}
-            exit={{ y: -100 }}
-            className="fixed left-1/2 -translate-x-1/2 bg-emerald-500 px-6 py-3 rounded-xl font-semibold shadow-xl z-50"
+            exit={{ y: -120 }}
+            className="fixed left-1/2 -translate-x-1/2 bg-emerald-500 px-6 py-3 rounded-xl z-50"
           >
-            ✅ Appointment Booked
+            Appointment Booked ✓
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* CLEAR TOAST */}
       <AnimatePresence>
         {showUndo && (
           <motion.div
-            initial={{ y: 100 }}
+            initial={{ y: 120 }}
             animate={{ y: -40 }}
-            exit={{ y: 100 }}
-            className="fixed bottom-10 left-1/2 -translate-x-1/2 bg-emerald-600 px-6 py-3 rounded-xl font-semibold shadow-xl z-50"
+            exit={{ y: 120 }}
+            className="fixed bottom-10 left-1/2 -translate-x-1/2 bg-emerald-600 px-6 py-3 rounded-xl z-50"
           >
-            Cleared Successfully —
-            <button onClick={undoClear} className="ml-3 underline font-bold">
-              Undo
-            </button>
+            Cleared —
+            <button onClick={undoClear} className="ml-2 underline">Undo</button>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className="max-w-5xl mx-auto px-6 py-12 relative z-10">
+      <div className="max-w-7xl mx-auto px-6 py-12">
 
-        <h1 className="text-5xl font-bold text-center mb-10 bg-gradient-to-r from-purple-400 via-blue-400 to-emerald-400 bg-clip-text text-transparent">
+        {/* HEADING */}
+        <h1 className="text-3xl md:text-4xl font-bold text-center mb-8
+        bg-gradient-to-r from-purple-400 via-blue-400 to-emerald-400
+        bg-clip-text text-transparent">
           Appointment Booking
         </h1>
 
-        {/* BUTTONS */}
-        <div className="flex flex-wrap gap-4 justify-center mb-8">
+        {/* TOOLBAR */}
+        <div className="flex justify-center mb-10">
+          <div className="flex flex-wrap gap-4 bg-white/5 border border-white/10 backdrop-blur-md px-6 py-4 rounded-2xl">
 
-          <button
-            onClick={() => setConfirmType("all")}
-            className="px-5 py-2 rounded-xl bg-red-600 hover:bg-red-700 font-semibold"
-          >
-            🗑 Clear All
-          </button>
+            <button
+              onClick={() => setConfirmType("all")}
+              className="px-5 py-2 bg-red-600 rounded-xl hover:bg-red-700"
+            >
+              Clear All
+            </button>
 
-          <button
-            disabled={!selectedDate}
-            onClick={() => setConfirmType("date")}
-            className={`px-5 py-2 rounded-xl font-semibold
-            ${selectedDate ? "bg-orange-500 hover:bg-orange-600" : "bg-gray-600 cursor-not-allowed"}`}
-          >
-            🧹 Clear Selected Date
-          </button>
+            <button
+              onClick={() => setConfirmType("date")}
+              disabled={!selectedDate}
+              className="px-5 py-2 bg-orange-500 rounded-xl disabled:bg-gray-600"
+            >
+              Clear Selected Date
+            </button>
 
-          <button
-            onClick={() => setHistoryOpen(true)}
-            className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 font-semibold"
-          >
-            📜 Booking History
-          </button>
+            <button
+              onClick={() => setHistoryOpen(true)}
+              className="px-5 py-2 bg-blue-600 rounded-xl hover:bg-blue-700"
+            >
+              Booking History
+            </button>
 
+          </div>
         </div>
 
-        {/* MAIN CARD */}
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl">
-          <Calendar
-            selectedDate={selectedDate}
-            setSelectedDate={setSelectedDate}
-          />
+        {/* MAIN GRID */}
+        <div className="grid md:grid-cols-[340px_1fr] gap-8 items-start">
 
-          {selectedDate && (
-            <TimeSlots
-              bookings={bookings}
-              selectedDate={selectedDate}
-              handleBooking={handleBooking}
-            />
-          )}
+          {/* CALENDAR PANEL */}
+          <div className="flex justify-center">
+            <div className="bg-white/5 border border-white/10 backdrop-blur-xl rounded-2xl p-6 w-full max-w-[320px]">
+              <Calendar
+                selectedDate={selectedDate}
+                setSelectedDate={setSelectedDate}
+              />
+            </div>
+          </div>
+
+          {/* TIMESLOT PANEL */}
+          <div className="bg-white/5 border border-white/10 backdrop-blur-xl rounded-2xl p-6 min-h-[420px]">
+            {selectedDate ? (
+              <TimeSlots
+                bookings={bookings}
+                selectedDate={selectedDate}
+                handleBooking={handleBooking}
+              />
+            ) : (
+              <div className="h-full flex items-center justify-center opacity-60">
+                Select a date from calendar
+              </div>
+            )}
+          </div>
+
         </div>
 
       </div>
 
-      {/* CONFIRM POPUP */}
+      {/* CONFIRM MODAL */}
       <AnimatePresence>
         {confirmType && (
-          <motion.div
-            className="fixed inset-0 bg-black/70 flex items-center justify-center z-50"
-          >
-            <motion.div className="bg-white text-black rounded-2xl p-8 w-[350px] text-center">
-              <h2 className="text-xl font-bold mb-4">Confirm Clear?</h2>
+          <motion.div className="fixed inset-0 bg-black/70 flex justify-center items-center z-50">
+            <div className="bg-white text-black p-6 rounded-xl text-center">
+              <p className="mb-4 font-semibold">Confirm Clear?</p>
 
               <div className="flex gap-4 justify-center">
                 <button
@@ -180,19 +177,19 @@ function App() {
                       : clearSelectedDateBookings();
                     setConfirmType(null);
                   }}
-                  className="px-5 py-2 bg-red-600 text-white rounded-lg"
+                  className="bg-red-600 text-white px-4 py-2 rounded"
                 >
                   Yes
                 </button>
 
                 <button
                   onClick={() => setConfirmType(null)}
-                  className="px-5 py-2 bg-gray-300 rounded-lg"
+                  className="bg-gray-300 px-4 py-2 rounded"
                 >
                   Cancel
                 </button>
               </div>
-            </motion.div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -204,33 +201,24 @@ function App() {
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
-            className="fixed right-0 top-0 h-full w-[350px] bg-slate-900 p-6 shadow-2xl z-50 overflow-y-auto"
+            className="fixed right-0 top-0 h-full w-[320px] bg-slate-900 p-6 z-50 overflow-y-auto"
           >
-            <h2 className="text-2xl font-bold mb-6">Booking History</h2>
-
-            {Object.keys(bookings).length === 0 && (
-              <p className="text-gray-400">No Bookings Yet</p>
-            )}
+            <h2 className="text-xl mb-6 font-bold">Booking History</h2>
 
             {Object.entries(bookings).map(([date, slots]) => (
-              <div key={date} className="mb-6">
-                <h3 className="font-semibold text-lg mb-2 text-blue-400">
-                  {date}
-                </h3>
-
-                <ul className="space-y-2">
-                  {slots.map((slot, i) => (
-                    <li key={i} className="bg-white/10 px-3 py-2 rounded-lg">
-                      {slot}
-                    </li>
-                  ))}
-                </ul>
+              <div key={date} className="mb-4">
+                <p className="font-semibold text-blue-400">{date}</p>
+                {slots.map((slot, i) => (
+                  <div key={i} className="text-sm bg-white/10 p-2 rounded mt-1">
+                    {slot}
+                  </div>
+                ))}
               </div>
             ))}
 
             <button
               onClick={() => setHistoryOpen(false)}
-              className="mt-6 w-full bg-red-600 hover:bg-red-700 py-2 rounded-xl font-semibold"
+              className="mt-6 w-full bg-red-600 py-2 rounded-xl"
             >
               Close
             </button>
